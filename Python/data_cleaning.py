@@ -1,13 +1,18 @@
+import pandas as pd
+
 class DataCleaning:
-    
-    def clean_data_from_csv(self, data):
-        # Implement code to clean data from CSV file
-        pass
+    def clean_user_data(self, data):
+        # Method to clean user data
+        # Check for NULL values
+        data = data.dropna()
 
-    def clean_data_from_api(self, data):
-        # Implement code to clean data from API
-        pass
+        # Validate dates
+        data['date_of_birth'] = pd.to_datetime(data['date_of_birth'])
 
-    def clean_data_from_s3(self, data):
-        # Implement code to clean data from S3 bucket
-        pass
+        # Check for incorrectly typed values
+        data['country'] = data['country'].apply(lambda x: x.upper())
+
+        # Remove rows with incorrect information
+        data = data[data['country'] != 'INVALID']
+
+        return data
