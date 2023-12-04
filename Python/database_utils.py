@@ -1,5 +1,6 @@
 import yaml
 import sqlalchemy as sa
+import psycopg2
 
 class DatabaseConnector:
     def __init__(self):
@@ -18,11 +19,14 @@ class DatabaseConnector:
         return(self.engine)
 
     def list_db_tables(self):
-        metadata = sa.MetaData()
-        metadata.reflect(self.engine)
-        print(metadata.tables)
+        metdata = sa.inspect(self.engine)
+        table_names = metdata.get_table_name()
+        return table_names
+        #metadata = sa.MetaData()
+        #metadata.reflect(self.engine)
+        #print(metadata.tables)
         #FIXME:
-        return metadata.tables
+        #return metadata.tables
 
     def upload_to_db(self, data, table_name):
         data.to_sql(table_name, self.engine, if_exists='replace', index=False)
