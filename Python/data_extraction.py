@@ -2,10 +2,11 @@ import pandas as pd
 from database_utils import DatabaseConnector
 
 class DataExtractor:
-    def extract_data_from_rds(self, db_connector, table_name):
+    def extract_data_from_rds(self, table_name):
         # Method to extract data from RDS database
         db_connector = DatabaseConnector()
-        data = db_connector.read_rds_table(table_name)
+        engine = db_connector.init_db_engine()
+        data = self.read_rds_table(table_name, engine)
         return data
 
     def extract_data_from_csv(self, file_path):

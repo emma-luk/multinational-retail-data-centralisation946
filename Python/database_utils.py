@@ -14,6 +14,7 @@ class DatabaseConnector:
         creds = self.read_db_creds()
         engine_string = f'postgresql+psycopg2://{creds["RDS_USER"]}:{creds["RDS_PASSWORD"]}@{creds["RDS_HOST"]}:{creds["RDS_PORT"]}/{creds["RDS_DATABASE"]}'
         self.engine = sa.create_engine(engine_string)
+        print(engine_string)
         return(self.engine)
 
     def list_db_tables(self):

@@ -10,16 +10,16 @@ sourceDB = db_connector.init_db_engine()
 table_name = 'legacy_users'
 
 # Extract legacy users data
-legacy_users_data = data_extractor.read_rds_table(table_name, sourceDB)
+legacy_users_data = data_extractor.extract_data_from_rds(table_name)
 
 # Print legacy users data
 print(legacy_users_data)
 
 # Extract data from RDS database
-data_extractor = DataExtractor()
-db_connector = DatabaseConnector()
+# data_extractor = DataExtractor()
+# db_connector = DatabaseConnector()
 table_name = 'user_data'
-user_data = data_extractor.extract_data_from_rds(db_connector, table_name)
+user_data = data_extractor.extract_data_from_rds(table_name)
 
 # Clean user data
 data_cleaning = DataCleaning()
