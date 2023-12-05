@@ -28,5 +28,14 @@ class DatabaseConnector:
         #FIXME:
         #return metadata.tables
 
-    def upload_to_db(self, data, table_name):
-        data.to_sql(table_name, self.engine, if_exists='replace', index=False)
+    #def upload_to_db(self, data, table_name):
+        #data.to_sql(table_name, self.engine, if_exists='replace', index=False)
+
+    def upload_to_db(self, data, table_name, engine=None):
+        if not engine:
+            engine = self.engine
+
+        with engine.begin() as transaction:
+            data.to_sql(table_name, engine, if_exists='replace', index=False)
+            transaction.commit()
+

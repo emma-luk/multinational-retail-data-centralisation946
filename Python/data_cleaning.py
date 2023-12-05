@@ -7,7 +7,9 @@ class DataCleaning:
         data = data.dropna()
 
         # Validate dates
-        data['date_of_birth'] = pd.to_datetime(data['date_of_birth'])
+        ## data['date_of_birth'] = pd.to_datetime(data['date_of_birth'])
+        #data['date_of_birth'] = pd.to_datetime(data['date_of_birth'], format='%Y-%m-%d %B')
+        data['date_of_birth'] = pd.to_datetime(data['date_of_birth'], format='mixed', errors='coerce')
 
         # Check for incorrectly typed values
         data['country'] = data['country'].apply(lambda x: x.upper())
@@ -16,3 +18,7 @@ class DataCleaning:
         data = data[data['country'] != 'INVALID']
 
         return data
+
+
+
+
