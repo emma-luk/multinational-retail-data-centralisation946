@@ -17,10 +17,14 @@ class DatabaseConnector:
     # Initialize the database engine using the credentials
     #engine = db_connector.init_db_engine(db_creds)
 
-    def init_db_engine(self):
+    def init_db_engine(self, creds):
         #creds = self.read_db_creds()
-        creds = self.read_db_creds('credentials.yaml')  # Pass the filename explicitly
+        #creds = self.read_db_creds('credentials.yaml')  # Pass the filename explicitly
+        # Load credentials from YAML file
+        creds = yaml.safe_load(open('credentials.yaml', 'r'))
         engine_string = f'postgresql+psycopg2://{creds["RDS_USER"]}:{creds["RDS_PASSWORD"]}@{creds["RDS_HOST"]}:{creds["RDS_PORT"]}/{creds["RDS_DATABASE"]}'
+        #self.engine = sa.create_engine(engine_string)
+        # Create the database engine using the extracted credentials
         self.engine = sa.create_engine(engine_string)
         print(engine_string)
         return(self.engine)
@@ -45,4 +49,6 @@ class DatabaseConnector:
         with engine.begin() as transaction:
             data.to_sql(table_name, engine, if_exists='replace', index=False)
             transaction.commit()
+
+
 
