@@ -27,6 +27,12 @@ class DataCleaning:
         data = data[data['country'] != 'INVALID']
 
         return data
+    
+    def clean_store_data(self, stores_df):
+        # Implement your cleaning logic here
+        # For example, remove null values, handle data type conversions, etc.
+        cleaned_stores_df = stores_df.dropna()
+        return cleaned_stores_df
 
 
 
