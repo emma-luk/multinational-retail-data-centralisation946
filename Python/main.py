@@ -25,5 +25,4 @@ data_cleaning = DataCleaning()
 cleaned_user_data = data_cleaning.clean_user_data(legacy_users_data)
 
 # Upload cleaned data to local database using local engine
-#db_connector = DatabaseConnector()
 db2.upload_to_db(cleaned_user_data, 'local_dim_users', db2.engine)

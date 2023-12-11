@@ -118,8 +118,6 @@ class DataExtractor:
 
     def extract_data_from_rds(self, table_name, engine):
         # Method to extract data from RDS database
-        #db_connector = DatabaseConnector()
-        #engine = db_connector.init_db_engine()
         data = self.read_rds_table(table_name, engine)
         return data
 
