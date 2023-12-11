@@ -41,6 +41,6 @@ class DataCleaning:
 
         return cleaned_stores_df
 
-
-
+if __name__ == "__main__":
+import module
 

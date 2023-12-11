@@ -4,6 +4,7 @@ import requests
 import boto3
 from io import BytesIO
 from database_utils import DatabaseConnector
+from data_cleaning import DataCleaning
 
 class DataExtractor:
     def __init__(self, api_key):
