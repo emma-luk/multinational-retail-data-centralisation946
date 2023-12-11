@@ -57,9 +57,9 @@ class DataExtractor:
             # Print the full API response for debugging
             print("API Response for store data:", stores_data)
 
-            # Check if the data is a list and has at least one item
-            if isinstance(stores_data, list) and stores_data:
-                stores_df = pd.DataFrame(stores_data)
+            # Check if the data is a dictionary and contains necessary information
+            if isinstance(stores_data, dict) and 'index' in stores_data and 'address' in stores_data:
+                stores_df = pd.DataFrame([stores_data])  # Convert single dictionary to DataFrame
                 return stores_df
             elif isinstance(stores_data, dict) and 'error' in stores_data:
                 print(f"Error in API response: {stores_data['error']}")
@@ -71,6 +71,7 @@ class DataExtractor:
         except Exception as e:
             print(f"Error retrieving stores data: {e}")
             return None
+
 
     def extract_data_from_rds(self, table_name, engine):
         # Method to extract data from RDS database
