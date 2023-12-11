@@ -8,6 +8,8 @@ from database_utils import DatabaseConnector
 class DataExtractor:
     def __init__(self, api_key):
         self.api_key = api_key
+        self.store_data_list = []  # List to hold store data
+
 
     def retrieve_pdf_data_from_s3(self, pdf_url):
         try:
@@ -60,6 +62,10 @@ class DataExtractor:
             # Check if the data is a dictionary and contains necessary information
             if isinstance(stores_data, dict) and 'index' in stores_data and 'address' in stores_data:
                 stores_df = pd.DataFrame([stores_data])  # Convert single dictionary to DataFrame
+
+                # Append the DataFrame to the list
+                self.store_data_list.append(stores_df)
+
                 return stores_df
             elif isinstance(stores_data, dict) and 'error' in stores_data:
                 print(f"Error in API response: {stores_data['error']}")
@@ -71,6 +77,9 @@ class DataExtractor:
         except Exception as e:
             print(f"Error retrieving stores data: {e}")
             return None
+
+    def get_store_data_list(self):
+        return self.store_data_list
 
 
     def extract_data_from_rds(self, table_name, engine):
@@ -111,7 +120,7 @@ if __name__ == "__main__":
 
 # Example usage
 
-# Example usage
+# Example usage for API
 if __name__ == "__main__":
     api_key = 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
     number_of_stores_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
@@ -140,9 +149,16 @@ if __name__ == "__main__":
             else:
                 print(f"Error retrieving store data for Store {store_number}.")
 
+        # Get the list of store data
+        all_store_data = data_extractor.get_store_data_list()
+
+        # Display the first few rows of each store data DataFrame in the list
+        for idx, store_data_df in enumerate(all_store_data):
+            print(f"\nStore Data for Store {idx + 1}:")
+            print(store_data_df.head())
 
 """
-# Example usage
+# Example usage remove
 if __name__ == "__main__":
     api_key = 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
     retrieve_store_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{}'
