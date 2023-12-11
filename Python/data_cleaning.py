@@ -34,6 +34,9 @@ class DataCleaning:
         # For example, remove null values, handle data type conversions, etc.
         # cleaned_stores_df = stores_df.dropna()
         cleaned_stores_df = stores_df
+
+        # Drop the 'lat' column
+        cleaned_stores_df = stores_df.drop(columns=['lat'], inplace=False)
         # Remove 'ee' prefix from 'continent'
         cleaned_stores_df['continent'] = cleaned_stores_df['continent'].str.replace('ee', '', regex=False)
         print(cleaned_stores_df["continent"].unique())
