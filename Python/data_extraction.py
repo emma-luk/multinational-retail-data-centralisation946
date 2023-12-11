@@ -142,7 +142,7 @@ if __name__ == "__main__":
         all_store_data_list = []
 
         # Loop through store numbers and retrieve store data
-        for store_number in range(1, number_of_stores + 1):
+        for store_number in range(number_of_stores):
             # Call retrieve_stores_data method
             store_data = data_extractor.retrieve_stores_data(retrieve_store_endpoint.format(store_number), headers)
 
