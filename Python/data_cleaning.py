@@ -32,6 +32,13 @@ class DataCleaning:
         # Implement your cleaning logic here
         # For example, remove null values, handle data type conversions, etc.
         cleaned_stores_df = stores_df.dropna()
+
+        # Remove 'ee' prefix from 'continent'
+        cleaned_stores_df['continent'] = cleaned_stores_df['continent'].str.replace('ee', '', regex=False)
+
+        # Handle formatting issues in 'opening_date'
+        cleaned_stores_df['opening_date'] = pd.to_datetime(cleaned_stores_df['opening_date'], errors='coerce')
+
         return cleaned_stores_df
 
 
