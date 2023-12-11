@@ -138,16 +138,33 @@ if __name__ == "__main__":
     if number_of_stores is not None:
         print(f"Number of stores to extract: {number_of_stores}")
 
+        # List to hold all store data
+        all_store_data_list = []
+
         # Loop through store numbers and retrieve store data
         for store_number in range(1, number_of_stores + 1):
             # Call retrieve_stores_data method
             store_data = data_extractor.retrieve_stores_data(retrieve_store_endpoint.format(store_number), headers)
 
             if store_data is not None:
-                print(f"Store Data for Store {store_number}:")
-                print(store_data.head())  # Display the first few rows of the retrieved store data
+                # Append each store's data to the list
+                all_store_data_list.append(store_data)
             else:
                 print(f"Error retrieving store data for Store {store_number}.")
+
+        # Combine all data frames into a single data frame
+        all_store_data_df = pd.concat(all_store_data_list, ignore_index=True)
+
+        # Display the first few rows of the combined data frame
+        print("\nCombined Store Data:")
+        print(all_store_data_df.head())
+
+        # Export the combined data frame to a CSV file
+        csv_filename = 'all_store_data.csv'
+        all_store_data_df.to_csv(csv_filename, index=False)
+        print(f"\nCombined Store Data exported to {csv_filename}")
+    else:
+        print("Error: Number of stores is None.")
 
         # Get the list of store data
         all_store_data = data_extractor.get_store_data_list()
