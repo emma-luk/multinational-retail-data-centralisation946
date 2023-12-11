@@ -1,4 +1,5 @@
 import pandas as pd
+from pandasgui import show
 
 class DataCleaning:
     def __init__(self):
@@ -31,16 +32,23 @@ class DataCleaning:
     def clean_store_data(self, stores_df):
         # Implement your cleaning logic here
         # For example, remove null values, handle data type conversions, etc.
-        cleaned_stores_df = stores_df.dropna()
-
+        # cleaned_stores_df = stores_df.dropna()
+        cleaned_stores_df = stores_df
         # Remove 'ee' prefix from 'continent'
         cleaned_stores_df['continent'] = cleaned_stores_df['continent'].str.replace('ee', '', regex=False)
-
+        print(cleaned_stores_df["continent"].unique())
         # Handle formatting issues in 'opening_date'
         cleaned_stores_df['opening_date'] = pd.to_datetime(cleaned_stores_df['opening_date'], errors='coerce')
 
         return cleaned_stores_df
 
 if __name__ == "__main__":
-import module
+    data_clean_obj = DataCleaning()
+    df = pd.read_csv("all_store_data.csv")
+    cleaned_store_data = data_clean_obj.clean_store_data(df)
+    cleaned_store_data.drop(columns="index", inplace=True)
+    print(cleaned_store_data.columns)
+    show(cleaned_store_data)
+    
+
 

@@ -1,3 +1,4 @@
+# data_extraction.py
 import tabula
 import pandas as pd
 import requests
@@ -10,7 +11,6 @@ class DataExtractor:
     def __init__(self, api_key):
         self.api_key = api_key
         self.store_data_list = []  # List to hold store data
-
 
     def retrieve_pdf_data_from_s3(self, pdf_url):
         try:
@@ -78,6 +78,39 @@ class DataExtractor:
         except Exception as e:
             print(f"Error retrieving stores data: {e}")
             return None
+    
+    # TODO implement this loop through all stores and extract the data to a DataFrame
+    def extract_all_stores(self, number_stores_endpoint, store_details_endpoint, headers):
+        num_stores = self.list_number_of_stores(number_stores_endpoint, headers)
+        
+        if num_stores is not None:
+            # List to hold all store data
+            all_store_data_list = []
+
+            # Loop through store numbers and retrieve store data
+            for store_number in range(num_stores):
+                # Call retrieve_stores_data method
+                store_data = self.retrieve_stores_data(store_details_endpoint.format(store_number), headers)
+
+                if store_data is not None:
+                    # Append each store's data to the list
+                    all_store_data_list.append(store_data)
+                else:
+                    print(f"Error retrieving store data for Store {store_number}.")
+
+            # Combine all data frames into a single data frame
+            all_store_data_df = pd.concat(all_store_data_list, ignore_index=True)
+
+            # Display the first few rows of the combined data frame
+            print("\nCombined Store Data:")
+            print(all_store_data_df.head())
+
+            # Export the combined data frame to a CSV file
+            csv_filename = 'all_store_data.csv'
+            all_store_data_df.to_csv(csv_filename, index=False)
+            print(f"\nCombined Store Data exported to {csv_filename}")
+        else:
+            print("Error: Number of stores is None.")
 
     def get_store_data_list(self):
         return self.store_data_list
@@ -120,7 +153,7 @@ if __name__ == "__main__":
 """
 
 # Example usage
-
+# move to # main.py
 # Example usage for API
 if __name__ == "__main__":
     api_key = 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
@@ -130,50 +163,11 @@ if __name__ == "__main__":
     headers = {'x-api-key': api_key}
 
     data_extractor = DataExtractor(api_key)
-    number_of_stores = data_extractor.list_number_of_stores(number_of_stores_endpoint, headers)
+    data_extractor.extract_all_stores(number_of_stores_endpoint, retrieve_store_endpoint, headers)
 
-    print(f"API Key: {api_key}")
-    print(f"Number of Stores Endpoint: {number_of_stores_endpoint}")
-    print(f"Headers: {headers}")
-
-    if number_of_stores is not None:
-        print(f"Number of stores to extract: {number_of_stores}")
-
-        # List to hold all store data
-        all_store_data_list = []
-
-        # Loop through store numbers and retrieve store data
-        for store_number in range(number_of_stores):
-            # Call retrieve_stores_data method
-            store_data = data_extractor.retrieve_stores_data(retrieve_store_endpoint.format(store_number), headers)
-
-            if store_data is not None:
-                # Append each store's data to the list
-                all_store_data_list.append(store_data)
-            else:
-                print(f"Error retrieving store data for Store {store_number}.")
-
-        # Combine all data frames into a single data frame
-        all_store_data_df = pd.concat(all_store_data_list, ignore_index=True)
-
-        # Display the first few rows of the combined data frame
-        print("\nCombined Store Data:")
-        print(all_store_data_df.head())
-
-        # Export the combined data frame to a CSV file
-        csv_filename = 'all_store_data.csv'
-        all_store_data_df.to_csv(csv_filename, index=False)
-        print(f"\nCombined Store Data exported to {csv_filename}")
-    else:
-        print("Error: Number of stores is None.")
-
-        # Get the list of store data
-        all_store_data = data_extractor.get_store_data_list()
-
-        # Display the first few rows of each store data DataFrame in the list
-        for idx, store_data_df in enumerate(all_store_data):
-            print(f"\nStore Data for Store {idx + 1}:")
-            print(store_data_df.head())
+    #print(f"API Key: {api_key}")
+    #print(f"Number of Stores Endpoint: {number_of_stores_endpoint}")
+    #print(f"Headers: {headers}")
 
 """
 # Example usage remove
