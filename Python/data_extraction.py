@@ -140,6 +140,7 @@ class DataExtractor:
         return data
     
 # Example usage for PDF
+# move to # main.py
 """
 if __name__ == "__main__":
     pdf_url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
@@ -168,25 +169,3 @@ if __name__ == "__main__":
     #print(f"API Key: {api_key}")
     #print(f"Number of Stores Endpoint: {number_of_stores_endpoint}")
     #print(f"Headers: {headers}")
-
-"""
-# Example usage remove
-if __name__ == "__main__":
-    api_key = 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
-    retrieve_store_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{}'
-    headers = {'x-api-key': api_key}
-
-    # Assuming you have a store number, replace '123' with the actual store number you want to retrieve
-    store_number = '451'
-
-    # Create an instance of DataExtractor
-    data_extractor = DataExtractor(api_key)
-
-    # Call retrieve_stores_data method
-    store_data = data_extractor.retrieve_stores_data(retrieve_store_endpoint.format(store_number), headers)
-
-    if store_data is not None:
-        print(store_data.head())  # Display the first few rows of the retrieved store data
-    else:
-        print("Error retrieving store data.")
-"""
