@@ -90,7 +90,7 @@ class DataExtractor:
             # Loop through store numbers and retrieve store data
             for store_number in range(num_stores):
                 # Call retrieve_stores_data method
-                store_data = self.retrieve_stores_data(store_details_endpoint.format(store_number), headers)
+                store_data = self.retrieve_stores_data(f"{store_details_endpoint}/{store_number}", headers)
 
                 if store_data is not None:
                     # Append each store's data to the list
@@ -109,6 +109,7 @@ class DataExtractor:
             csv_filename = 'all_store_data.csv'
             all_store_data_df.to_csv(csv_filename, index=False)
             print(f"\nCombined Store Data exported to {csv_filename}")
+            return all_store_data_df
         else:
             print("Error: Number of stores is None.")
 

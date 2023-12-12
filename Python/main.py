@@ -16,7 +16,12 @@ db2 = DatabaseConnector("D:\development\projects\multinational-retail-data-centr
 #local_engine = DatabaseConnector.init_db_engine(local_creds)
 
 # Extract data from RDS database using RDS engine
-data_extractor = DataExtractor()
+# data_extractor = DataExtractor(api_key='api_key') ## 
+
+# Initialize DataExtractor with the API key
+api_key = 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
+data_extractor = DataExtractor(api_key=api_key)
+
 table_name = 'legacy_users'
 legacy_users_data = data_extractor.read_rds_table(table_name, db.engine)
 
@@ -26,3 +31,29 @@ cleaned_user_data = data_cleaning.clean_user_data(legacy_users_data)
 
 # Upload cleaned data to local database using local engine
 db2.upload_to_db(cleaned_user_data, 'local_dim_users', db2.engine)
+
+
+'''
+DataExtractor with the API key
+'''
+
+
+
+# Example: Retrieve a specific store
+#store_number = '123'
+#store_data = data_extractor.retrieve_store_data(store_number)
+
+# Example: Get the number of stores
+#number_of_stores = data_extractor.get_number_of_stores()
+
+# Retrieve store data using the API
+#store_data = data_extractor.retrieve_stores_data(store_endpoint, headers)
+
+# Clean store data
+data_cleaning = DataCleaning()
+
+# Upload cleaned store data to the database using local engine
+
+store_data = data_extractor.extract_all_stores("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores", "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details", {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
+cleaned_store_data = data_cleaning.clean_store_data(store_data)
+db2.upload_to_db(cleaned_store_data, 'dim_store_details', db2.engine)
