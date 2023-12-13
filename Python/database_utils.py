@@ -8,6 +8,10 @@ class DatabaseConnector:
         cred = self.read_db_creds(cred)
         self.engine = self.init_db_engine(cred)
 
+    def upload_products_to_db(self, products_data, table_name='dim_products'):
+        # Use the upload_to_db method to insert data into the specified table
+        self.upload_to_db(products_data, table_name)
+
     def read_db_creds(self, filename):
         with open(filename, 'r') as f:
             creds = yaml.safe_load(f)

@@ -6,6 +6,7 @@ import boto3
 from io import BytesIO
 from database_utils import DatabaseConnector
 from data_cleaning import DataCleaning
+from botocore.exceptions import NoCredentialsError
 
 class DataExtractor:
     def __init__(self, api_key):
@@ -115,6 +116,30 @@ class DataExtractor:
 
     def get_store_data_list(self):
         return self.store_data_list
+  
+    def extract_from_s3(self, s3_address):
+        try:
+            print(f"Downloading file from {s3_address}...")
+            # Initialize the S3 client
+            s3 = boto3.client('s3')
+
+            # Split the S3 address to get the bucket and key
+            bucket, key = s3_address.replace('s3://', '').split('/', 1)
+
+            # Download the file from S3
+            with open('products.csv', 'wb') as file:
+                s3.download_fileobj(bucket, key, file)
+
+            print("File downloaded successfully.")
+            print("Reading CSV file into DataFrame...")
+            # Read the CSV file into a DataFrame
+            df = pd.read_csv('products.csv')
+            print("DataFrame created successfully.")
+            return df
+
+        except NoCredentialsError:
+            print('Credentials not available')
+            return None
 
 
     def extract_data_from_rds(self, table_name, engine):

@@ -6,6 +6,18 @@ class DataCleaning:
     def __init__(self):
         pass
 
+    def convert_product_weights(self, products_df):
+        # Implement the conversion logic for the 'weight' column
+        # ...
+
+        return products_df
+    
+    def clean_products_data(self, products_df):
+        # Implement the cleaning logic for the DataFrame
+        # ...
+
+        return products_df
+
     def clean_card_data(self, card_data):
         # Method to clean card data (remove erroneous values, NULL values, formatting errors, etc.)
         # Implement your cleaning logic here

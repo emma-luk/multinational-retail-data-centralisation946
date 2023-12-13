@@ -57,3 +57,18 @@ data_cleaning = DataCleaning()
 store_data = data_extractor.extract_all_stores("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores", "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details", {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
 cleaned_store_data = data_cleaning.clean_store_data(store_data)
 db2.upload_to_db(cleaned_store_data, 'dim_store_details', db2.engine)
+
+
+# Example: Extract data from S3
+s3_address_products = 's3://data-handling-public/products.csv'
+products_data = data_extractor.extract_from_s3(s3_address_products)
+
+# Example: Convert product weights
+data_cleaning = DataCleaning()
+converted_products_data = data_cleaning.convert_product_weights(products_data)
+
+# Example: Clean products data
+cleaned_products_data = data_cleaning.clean_products_data(converted_products_data)
+
+# Example: Upload to database
+db.upload_products_to_db(cleaned_products_data)
