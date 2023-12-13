@@ -71,4 +71,4 @@ converted_products_data = data_cleaning.convert_product_weights(products_data)
 cleaned_products_data = data_cleaning.clean_products_data(converted_products_data)
 
 # Example: Upload to database
-db.upload_products_to_db(cleaned_products_data)
+db.upload_products_to_db(cleaned_products_data, db2.engine)
