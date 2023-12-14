@@ -30,7 +30,8 @@ data_cleaning = DataCleaning()
 cleaned_user_data = data_cleaning.clean_user_data(legacy_users_data)
 
 # Upload cleaned data to local database using local engine
-db2.upload_to_db(cleaned_user_data, 'local_dim_users', db2.engine)
+#db2.upload_to_db(cleaned_user_data, 'local_dim_users', db2.engine)
+db_sales_data = DatabaseConnector("D:\development\projects\multinational-retail-data-centralisation946\Python\local_credentials.yaml")
 
 
 '''
@@ -71,4 +72,6 @@ converted_products_data = data_cleaning.convert_product_weights(products_data)
 cleaned_products_data = data_cleaning.clean_products_data(converted_products_data)
 
 # Example: Upload to database
-db.upload_products_to_db(cleaned_products_data, db2.engine)
+# db.upload_products_to_db(cleaned_products_data, products_data, db2.engine)
+db_sales_data = DatabaseConnector("D:\development\projects\multinational-retail-data-centralisation946\Python\db_creds_sales_data.yaml")
+db_sales_data.upload_to_db(cleaned_products_data, 'dim_products', db_sales_data.engine)
