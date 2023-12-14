@@ -55,9 +55,9 @@ data_cleaning = DataCleaning()
 
 # Upload cleaned store data to the database using local engine
 
-# store_data = data_extractor.extract_all_stores("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores", "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details", {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
-#cleaned_store_data = data_cleaning.clean_store_data(store_data)
-# db2.upload_to_db(cleaned_store_data, 'dim_store_details', db2.engine)
+store_data = data_extractor.extract_all_stores("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores", "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details", {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
+cleaned_store_data = data_cleaning.clean_store_data(store_data)
+db2.upload_to_db(cleaned_store_data, 'dim_store_details', db2.engine)
 
 
 # Example: Extract data from S3

@@ -13,26 +13,38 @@ class DataCleaning:
         for weight_str in products_df['weight']:
             # Check if the value is already a number (float or int)
             if pd.api.types.is_numeric_dtype(weight_str):
-                weight_in_kg = float(weight_str) / 1000  # assuming 'g' means grams
+                weight_in_kg = float(weight_str)
             else:
                 # Replace 'kg' and 'g' with an empty string
                 weight_str = str(weight_str).replace('kg', '').replace('g', '')
 
                 try:
                     # Attempt to convert to float
-                    weight_in_kg = float(weight_str) / 1000  # assuming 'g' means grams
+                    weight_in_kg = float(weight_str)
                 except ValueError:
                     # Handle the case where the value is not a simple number
-                    # For example, '12 x 100', might need custom logic here
+                    # might need custom logic here
                     # This is just an example, replace it with actual logic
                     parts = weight_str.split('x')
                     if len(parts) == 2:
                         try:
-                            weight_in_kg = float(parts[0]) * float(parts[1]) / 1000
+                            weight_in_kg = float(parts[0]) * float(parts[1])
                         except ValueError:
                             weight_in_kg = None
                     else:
-                        weight_in_kg = None
+                        # Search for 'g' and 'ml' in the row and multiply the weight if found
+                        if 'g' in weight_str:
+                            try:
+                                weight_in_kg = float(weight_str.replace('g', '')) / 1000
+                            except ValueError:
+                                weight_in_kg = None
+                        elif 'ml' in weight_str:
+                            try:
+                                weight_in_kg = float(weight_str.replace('ml', '')) * 0.001
+                            except ValueError:
+                                weight_in_kg = None
+                        else:
+                            weight_in_kg = None
 
             weights_in_kg.append(weight_in_kg)
 
