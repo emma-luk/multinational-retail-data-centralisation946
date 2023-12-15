@@ -16,7 +16,7 @@ class DataCleaning:
                 weight_in_kg = float(weight_str)
             else:
                 # Replace 'kg' and 'g' with an empty string
-                weight_str = str(weight_str).replace('kg', '').replace('g', '')
+                weight_str = str(weight_str).replace('kg', '')#.replace('g', '')
 
                 try:
                     # Attempt to convert to float
@@ -25,6 +25,7 @@ class DataCleaning:
                     # Handle the case where the value is not a simple number
                     # might need custom logic here
                     # This is just an example, replace it with actual logic
+                    # it could be '3 x 132g'
                     parts = weight_str.split('x')
                     if len(parts) == 2:
                         try:
@@ -35,7 +36,7 @@ class DataCleaning:
                         # Search for 'g' and 'ml' in the row and multiply the weight if found
                         if 'g' in weight_str:
                             try:
-                                weight_in_kg = float(weight_str.replace('g', '')) / 1000
+                                weight_in_kg = float(weight_str.replace('g', '')) * 0.001
                             except ValueError:
                                 weight_in_kg = None
                         elif 'ml' in weight_str:
