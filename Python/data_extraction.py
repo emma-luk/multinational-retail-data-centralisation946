@@ -15,7 +15,7 @@ class DataExtractor:
 
     def read_rds_table(self, table_name, engine):
         dataframe = pd.read_sql_table(table_name, engine)
-    return dataframe
+        return dataframe
 
     def retrieve_pdf_data_from_s3(self, pdf_url):
         try:
@@ -144,8 +144,6 @@ class DataExtractor:
         except NoCredentialsError:
             print('Credentials not available')
             return None
-
-====================================================================
 
 # Example usage
 # move to # main.py

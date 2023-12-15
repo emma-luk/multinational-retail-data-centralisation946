@@ -6,9 +6,9 @@ import yaml
 
 
 # Connection to AWS RDS database
-db = DatabaseConnector("db_creds.yaml")
+db = DatabaseConnector("D:\development\projects\multinational-retail-data-centralisation946\Python\db_creds.yaml")
 # Connection to my local database
-db2 = DatabaseConnector("local_credentials.yaml")
+db2 = DatabaseConnector("D:\development\projects\multinational-retail-data-centralisation946\Python\local_credentials.yaml")
 
 api_key = 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'
 data_extractor = DataExtractor(api_key=api_key)
