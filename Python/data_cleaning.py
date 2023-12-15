@@ -117,6 +117,14 @@ class DataCleaning:
         cleaned_stores_df['opening_date'] = pd.to_datetime(cleaned_stores_df['opening_date'], errors='coerce')
 
         return cleaned_stores_df
+    
+    def clean_orders_data(self, orders_df):
+        # Remove specific columns from orders data
+        orders_df.drop(columns=['first_name', 'last_name', '1'], inplace=True)
+
+        # Additional cleaning logic if needed
+
+        return orders_df
 
 
 if __name__ == "__main__":

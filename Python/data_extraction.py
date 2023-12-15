@@ -13,6 +13,10 @@ class DataExtractor:
         self.api_key = api_key
         self.store_data_list = []  # List to hold store data
 
+    def read_rds_table(self, table_name, engine):
+        dataframe = pd.read_sql_table(table_name, engine)
+    return dataframe
+
     def retrieve_pdf_data_from_s3(self, pdf_url):
         try:
             # Download the PDF content from the provided URL
@@ -141,41 +145,7 @@ class DataExtractor:
             print('Credentials not available')
             return None
 
-
-    def extract_data_from_rds(self, table_name, engine):
-        # Method to extract data from RDS database
-        data = self.read_rds_table(table_name, engine)
-        return data
-
-    def extract_data_from_csv(self, file_path):
-        # Method to extract data from CSV file
-        pass
-
-    def extract_data_from_api(self, api_url, api_key):
-        # Method to extract data from API
-        pass
-
-    def extract_data_from_s3_bucket(self, bucket_name, file_key):
-        # Method to extract data from S3 bucket
-        pass
-
-    def read_rds_table(self, table_name, engine):
-        data = pd.read_sql_table(table_name, engine)
-        return data
-    
-# Example usage for PDF
-# move to # main.py
-"""
-if __name__ == "__main__":
-    pdf_url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
-
-    data_extractor = DataExtractor()
-    pdf_data = data_extractor.retrieve_pdf_data_from_s3(pdf_url)
-
-    if pdf_data is not None:
-        print(pdf_data.head())  # Display the first few rows of the extracted data
-
-"""
+====================================================================
 
 # Example usage
 # move to # main.py
