@@ -4,7 +4,6 @@ from database_utils import DatabaseConnector
 from data_cleaning import DataCleaning
 import yaml
 
-
 # Connection to AWS RDS database
 db = DatabaseConnector("D:\development\projects\multinational-retail-data-centralisation946\Python\db_creds.yaml")
 # Connection to my local database
@@ -66,17 +65,6 @@ db2.upload_to_db(cleaned_products_data, 'dim_products', db2.engine)
 # Transform
 
 # Load
-
-
-# Example: Retrieve a specific store
-#store_number = '123'
-#store_data = data_extractor.retrieve_store_data(store_number)
-
-# Example: Get the number of stores
-#number_of_stores = data_extractor.get_number_of_stores()
-
-# Retrieve store data using the API
-#store_data = data_extractor.retrieve_stores_data(store_endpoint, headers)
 
 # Step 1: List tables and find the orders table
 tables = db.list_db_tables()
