@@ -38,12 +38,13 @@ db2.upload_to_db(cleaned_pdf_data, 'dim_card_details', db2.engine)
 
 
 # Task 5: Extract and clean the details of each store
+
 # Extract
-#store_data = data_extractor.extract_all_stores("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores", "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details", {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
+store_data = data_extractor.extract_all_stores("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores", "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details", {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
 # Transform
-#cleaned_store_data = data_cleaning.clean_store_data(store_data)
+cleaned_store_data = data_cleaning.clean_store_data(store_data)
 # Load
-#db2.upload_to_db(cleaned_store_data, 'dim_store_details', db2.engine)
+db2.upload_to_db(cleaned_store_data, 'dim_store_details', db2.engine)
 
 # Task 6: Extract and clean the product details
 
@@ -61,58 +62,19 @@ db2.upload_to_db(cleaned_products_data, 'dim_products', db2.engine)
 
 # Step 1: List all tables in the database
 all_tables = db.list_db_tables()
-
-# Find the orders table name (replace 'your_orders_table_name' with the actual name)
-orders_table_name = 'your_orders_table_name'  # Update this with the correct name from the output of list_db_tables
+# Print the list of tables
+# All Tables: ['legacy_store_details', 'legacy_users', 'orders_table']
+print("All Tables:", all_tables)
 
 # Extract
-# Step 2: Extract orders data
+# Step 2: Extract the orders data
+orders_table_name = 'orders_table'  # Use the correct name of your orders table
 orders_data = data_extractor.read_rds_table(orders_table_name, db.engine)
 
 # Transform
-# Step 3: Clean orders data
+# Step 3: Clean the orders data
 cleaned_orders_data = data_cleaning.clean_orders_data(orders_data)
 
 # Load
-# Step 4: Upload cleaned orders data to a new table called 'orders_table'
-db2.upload_to_db(cleaned_orders_data, 'orders_table', db2.engine)
-
-
-
-
-
-# Extract
-
-# Transform
-
-# Load
-'''
-# Step 1: List tables and find the orders table
-tables = db.list_db_tables()
-order_table_name = None
-for table in tables:
-    if "order" in table.lower():
-        order_table_name = table
-        break
-
-# Step 2: Extract orders data
-if order_table_name:
-    orders_data = data_extractor.extract_data_from_rds(order_table_name, db.engine)
-    print("Orders data extracted successfully.")
-    print(orders_data.head())
-else:
-    print("Orders table not found.")
-
-# Step 3: Clean orders data
-if order_table_name:
-    data_clean_obj = DataCleaning()  # Create an instance of DataCleaning
-    cleaned_orders_data = data_clean_obj.clean_orders_data(orders_data)
-    print("Orders data cleaned successfully.")
-    print(cleaned_orders_data.head())
-
-    # Step 4: Upload cleaned orders data to the database
-    db.upload_to_db(cleaned_orders_data, 'orders_table')
-    print("Cleaned orders data uploaded to the database.")
-else:
-    print("Orders table not found.")
-'''
+# Step 4: Upload cleaned orders data to the same 'orders_table'
+db2.upload_to_db(cleaned_orders_data, orders_table_name)
