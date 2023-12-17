@@ -126,6 +126,17 @@ class DataCleaning:
 
         return orders_df
 
+    def clean_date_events_data(self, date_events_df):
+        # Implement cleaning logic specific to date events data
+        # For example, handle date formats, remove unnecessary columns, etc.
+        
+        # Assuming 'date_column' is the column containing date information
+        date_events_df['date_column'] = pd.to_datetime(date_events_df['date_column'], errors='coerce')
+
+        # Additional cleaning logic if needed
+
+        return date_events_df
+
 
 if __name__ == "__main__":
     data_clean_obj = DataCleaning()

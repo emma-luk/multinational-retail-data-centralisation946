@@ -78,3 +78,21 @@ cleaned_orders_data = data_cleaning.clean_orders_data(orders_data)
 # Load
 # Step 4: Upload cleaned orders data to the same 'orders_table'
 db2.upload_to_db(cleaned_orders_data, orders_table_name)
+
+# Task 8: Retrieve and clean the date events data
+
+# Extract data from the S3 link
+s3_address_date_events = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
+date_events_data = data_extractor.extract_from_s3(s3_address_date_events)
+
+# Check if data extraction was successful
+if date_events_data is not None:
+    # Transform (clean) the date events data
+    cleaned_date_events_data = data_cleaning.clean_date_events_data(date_events_data)
+
+    # Load cleaned date events data to the database
+    db.upload_to_db(cleaned_date_events_data, 'dim_date_times')
+
+    print("Date events data extracted, cleaned, and loaded to dim_date_times table.")
+else:
+    print("Error extracting date events data from S3.")
