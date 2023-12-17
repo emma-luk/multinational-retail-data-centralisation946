@@ -91,7 +91,7 @@ if date_events_data is not None:
     cleaned_date_events_data = data_cleaning.clean_date_events_data(date_events_data)
 
     # Load cleaned date events data to the database
-    db.upload_to_db(cleaned_date_events_data, 'dim_date_times')
+    db2.upload_to_db(cleaned_date_events_data, 'dim_date_times')
 
     print("Date events data extracted, cleaned, and loaded to dim_date_times table.")
 else:
