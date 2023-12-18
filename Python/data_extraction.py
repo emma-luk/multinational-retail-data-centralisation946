@@ -3,7 +3,7 @@ import tabula
 import pandas as pd
 import requests
 import boto3
-from io import BytesIO
+from io import BytesIO, StringIO
 from database_utils import DatabaseConnector
 from data_cleaning import DataCleaning
 from botocore.exceptions import NoCredentialsError
@@ -137,8 +137,11 @@ class DataExtractor:
             response = s3.get_object(Bucket=bucket, Key=key)
             content = response['Body'].read().decode('utf-8')  # Decode the content
 
+            # Use StringIO to create a file-like object
+            content_file_like = StringIO(content)
+
             # Read the JSON content into a DataFrame
-            df = pd.read_json(content)
+            df = pd.read_json(content_file_like)
 
             print("DataFrame created successfully.")
             return df
