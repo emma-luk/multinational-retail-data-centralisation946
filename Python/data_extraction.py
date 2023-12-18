@@ -128,10 +128,10 @@ class DataExtractor:
             # Initialize the S3 client
             s3 = boto3.client('s3')
 
-            # Split the S3 address to get the bucket and key
-            # Remove 'https://' from the address
-            s3_address_parts = s3_address.replace('https://', '').split('/', 1)
-            bucket, key = s3_address_parts[0], s3_address_parts[1]
+            # Use urlparse to extract the bucket and key from the S3 address
+            parsed_url = urlparse(s3_address)
+            bucket = parsed_url.netloc
+            key = parsed_url.path.lstrip('/')
 
             # Download the file from S3
             response = s3.get_object(Bucket=bucket, Key=key)
