@@ -7,6 +7,7 @@ from io import BytesIO
 from database_utils import DatabaseConnector
 from data_cleaning import DataCleaning
 from botocore.exceptions import NoCredentialsError
+from urllib.parse import urlparse
 
 class DataExtractor:
     def __init__(self, api_key):
@@ -127,17 +128,23 @@ class DataExtractor:
             # Initialize the S3 client
             s3 = boto3.client('s3')
 
-            # Split the S3 address to get the bucket and key
-            bucket, key = s3_address.replace('s3://', '').split('/', 1)
+            # Parse the S3 address to get the bucket and key
+            parsed_url = urlparse(s3_address)
+            bucket = parsed_url.netloc
+            key = parsed_url.path.lstrip('/')
 
             # Download the file from S3
-            with open('products.csv', 'wb') as file:
-                s3.download_fileobj(bucket, key, file)
+            response = s3.get_object(Bucket=bucket, Key=key)
+            content = response['Body'].read()
+
+            # Write the content to a file
+            with open('date_details.json', 'wb') as file:
+                file.write(content)
 
             print("File downloaded successfully.")
-            print("Reading CSV file into DataFrame...")
-            # Read the CSV file into a DataFrame
-            df = pd.read_csv('products.csv')
+            print("Reading JSON file into DataFrame...")
+            # Read the JSON file into a DataFrame
+            df = pd.read_json('date_details.json')
             print("DataFrame created successfully.")
             return df
 
