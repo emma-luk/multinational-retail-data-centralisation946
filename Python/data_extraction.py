@@ -121,7 +121,34 @@ class DataExtractor:
 
     def get_store_data_list(self):
         return self.store_data_list
-  
+    
+    def extract_from_s3(self, s3_address):
+        try:
+            print(f"Downloading file from {s3_address}...")
+            # Initialize the S3 client
+            s3 = boto3.client('s3')
+
+            # Split the S3 address to get the bucket and key
+            # Remove 'https://' from the address
+            s3_address_parts = s3_address.replace('https://', '').split('/', 1)
+            bucket, key = s3_address_parts[0], s3_address_parts[1]
+
+            # Download the file from S3
+            response = s3.get_object(Bucket=bucket, Key=key)
+            content = response['Body'].read().decode('utf-8')  # Decode the content
+
+            # Read the JSON content into a DataFrame
+            df = pd.read_json(content)
+
+            print("DataFrame created successfully.")
+            return df
+
+        except NoCredentialsError:
+            print('Credentials not available')
+            return None
+    
+
+'''
     def extract_from_s3(self, s3_address):
         try:
             print(f"Downloading file from {s3_address}...")
@@ -151,7 +178,7 @@ class DataExtractor:
         except NoCredentialsError:
             print('Credentials not available')
             return None
-
+'''
 # Example usage
 # move to # main.py
 # Example usage for API
