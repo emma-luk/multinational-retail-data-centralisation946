@@ -123,39 +123,67 @@ class DataExtractor:
         return self.store_data_list
     
     def extract_from_s3_products(self, s3_address):
-        return self._extract_from_s3(s3_address)
+        # Custom logic to split the S3 address for products
+        if s3_address.startswith('s3://'):
+            s3_address_parts = s3_address.replace('s3://', '').split('/')
+            bucket_name = s3_address_parts[0]
+            key = '/'.join(s3_address_parts[1:])
+            return bucket_name, key
+        else:
+            print("Error: Unsupported S3 address format for products.")
+            return None, None
 
     def extract_from_s3_date_events(self, s3_address):
-        return self._extract_from_s3(s3_address)
+        # Custom logic to split the S3 address for date events
+        if s3_address.startswith('https://'):
+            # Parse the URL and get the netloc
+            parsed_url = urlparse(s3_address)
+            netloc_parts = parsed_url.netloc.split('.')
+            
+            # The bucket name is the first part before the first dot
+            bucket_name = netloc_parts[0]
+            
+            # The key is the path after the first forward slash
+            key = parsed_url.path.lstrip('/')
+            
+            return bucket_name, key
+        else:
+            print("Error: Unsupported S3 address format for date events.")
+            return None, None
     
-    def _extract_from_s3(self, s3_address):
-        try:
-            print(f"Downloading file from {s3_address}...")
-            # Initialize the S3 client
-            s3 = boto3.client('s3')
+    def extract_from_s3(self, s3_address):
+        if s3_address.startswith("s3"):
+            bucket_name, key = self.extract_from_s3_products(s3_address)
+        else:
+            bucket_name, key = self.extract_from_s3_date_events(s3_address)
 
-            # Split the S3 address to get the bucket and key
-            s3_address_parts = s3_address.replace('https://', '').split('/', 1)
-            bucket, key = s3_address_parts[0], s3_address_parts[1]
+        if bucket_name is not None and key is not None:
+            try:
+                print(f"Downloading file from {s3_address}...")
+                # Initialize the S3 client
+                s3 = boto3.client('s3')
 
-            # Download the file from S3
-            response = s3.get_object(Bucket=bucket, Key=key)
-            content = response['Body']
+                # Download the file from S3
+                response = s3.get_object(Bucket=bucket_name, Key=key)
+                content = response['Body']
 
-            # Check if the content type is CSV or JSON and read accordingly
-            if key.endswith('.csv'):
-                df = pd.read_csv(content)
-            elif key.endswith('.json'):
-                df = pd.read_json(content)
-            else:
-                print("Error: Unsupported file format.")
+                # Check if the content type is CSV or JSON and read accordingly
+                if key.endswith('.csv'):
+                    df = pd.read_csv(content)
+                elif key.endswith('.json'):
+                    df = pd.read_json(content)
+                else:
+                    print("Error: Unsupported file format.")
+                    return None
+
+                print("DataFrame created successfully.")
+                return df
+
+            except NoCredentialsError:
+                print('Credentials not available')
                 return None
-
-            print("DataFrame created successfully.")
-            return df
-
-        except NoCredentialsError:
-            print('Credentials not available')
+        else:
+            print("Error: Unable to extract bucket name and key.")
             return None
     
 
