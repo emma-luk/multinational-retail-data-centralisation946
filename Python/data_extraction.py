@@ -128,29 +128,17 @@ class DataExtractor:
             # Initialize the S3 client
             s3 = boto3.client('s3')
 
-            # Use urlparse to extract the bucket and key
-            url_components = urlparse(s3_address)
-            bucket = url_components.netloc
-            key = url_components.path.lstrip('/')
-
-            print(f"Bucket: {bucket}")
-            print(f"Key: {key}")
-
-            # Verify if the bucket exists
-            response = s3.list_buckets()
-            buckets = [b['Name'] for b in response['Buckets']]
-            print(f"All Buckets: {buckets}")
-
-            if bucket not in buckets:
-                print(f"Error: Bucket '{bucket}' not found.")
-                return None
+            # Split the S3 address to get the bucket and key
+            # Remove 'https://' from the address
+            s3_address_parts = s3_address.replace('https://', '').split('/', 1)
+            bucket, key = s3_address_parts[0], s3_address_parts[1]
 
             # Download the file from S3
             response = s3.get_object(Bucket=bucket, Key=key)
-            content = response['Body']  # Directly get the body
+            content = response['Body']
 
-            # Create a DataFrame directly from CSV content
-            df = pd.read_csv(content)
+            # Read the JSON content into a DataFrame
+            df = pd.read_json(content)
 
             print("DataFrame created successfully.")
             return df
