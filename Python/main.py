@@ -49,7 +49,7 @@ db2.upload_to_db(cleaned_store_data, 'dim_store_details', db2.engine)
 # Task 6: Extract and clean the product details
 
 s3_address_products = 's3://data-handling-public/products.csv'
-products_data = data_extractor.extract_from_s3(s3_address_products)
+products_data = data_extractor.extract_from_s3_products(s3_address_products)
 
 # Extract
 converted_products_data = data_cleaning.convert_product_weights(products_data)

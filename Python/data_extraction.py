@@ -122,29 +122,34 @@ class DataExtractor:
     def get_store_data_list(self):
         return self.store_data_list
     
-    def extract_from_s3(self, s3_address):
+    def extract_from_s3_products(self, s3_address):
+        return self._extract_from_s3(s3_address)
+
+    def extract_from_s3_date_events(self, s3_address):
+        return self._extract_from_s3(s3_address)
+    
+    def _extract_from_s3(self, s3_address):
         try:
             print(f"Downloading file from {s3_address}...")
             # Initialize the S3 client
             s3 = boto3.client('s3')
 
-            # Parse the S3 address to get the bucket and key
-            parsed_url = urlparse(s3_address)
-            netloc_parts = parsed_url.netloc.split('.')
-            
-            if len(netloc_parts) >= 2:
-                bucket = netloc_parts[0]  # Get the first part as the bucket name
-                key = parsed_url.path.lstrip('/')
-            else:
-                print("Error: Unable to extract bucket name from the S3 address.")
-                return None
+            # Split the S3 address to get the bucket and key
+            s3_address_parts = s3_address.replace('https://', '').split('/', 1)
+            bucket, key = s3_address_parts[0], s3_address_parts[1]
 
             # Download the file from S3
             response = s3.get_object(Bucket=bucket, Key=key)
             content = response['Body']
 
-            # Read the JSON content into a DataFrame
-            df = pd.read_json(content)
+            # Check if the content type is CSV or JSON and read accordingly
+            if key.endswith('.csv'):
+                df = pd.read_csv(content)
+            elif key.endswith('.json'):
+                df = pd.read_json(content)
+            else:
+                print("Error: Unsupported file format.")
+                return None
 
             print("DataFrame created successfully.")
             return df
