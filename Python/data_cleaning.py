@@ -125,18 +125,27 @@ class DataCleaning:
         # Additional cleaning logic if needed
 
         return orders_df
-
+    
     def clean_date_events_data(self, date_events_df):
-        # Implement cleaning logic specific to date events data
-        # For example, handle date formats, remove unnecessary columns, etc.
-        
-        # Assuming 'date_column' is the column containing date information
-        date_events_df['date_column'] = pd.to_datetime(date_events_df['date_column'], errors='coerce')
+        try:
+            # Print the columns of the DataFrame to identify the available columns
+            print("Columns in date_events_df:", date_events_df.columns)
 
-        # Additional cleaning logic if needed
+            # Check if 'date_uuid' is present in the DataFrame
+            if 'date_uuid' in date_events_df.columns:
+                # Convert the 'date_uuid' to datetime
+                date_events_df['date_uuid'] = pd.to_datetime(date_events_df['date_uuid'], errors='coerce')
 
-        return date_events_df
+                # Additional cleaning logic if needed
 
+                return date_events_df
+            else:
+                print("Error: 'date_uuid' not found in the DataFrame.")
+                return None
+
+        except Exception as e:
+            print(f"Error cleaning date events data: {e}")
+            return None
 
 if __name__ == "__main__":
     data_clean_obj = DataCleaning()
