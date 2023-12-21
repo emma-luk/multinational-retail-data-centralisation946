@@ -1,6 +1,7 @@
 #data_cleaning.py
 import pandas as pd
 from pandasgui import show
+import uuid
 
 class DataCleaning:
     def __init__(self):
@@ -133,8 +134,11 @@ class DataCleaning:
 
             # Check if 'date_uuid' is present in the DataFrame
             if 'date_uuid' in date_events_df.columns:
-                # Convert the 'date_uuid' to datetime
-                date_events_df['date_uuid'] = pd.to_datetime(date_events_df['date_uuid'], errors='coerce')
+                # Convert the 'date_uuid' to UUID
+                date_events_df['date_uuid'] = date_events_df['date_uuid'].apply(lambda x: self.convert_to_uuid(x))
+
+                # Drop rows with NULL values in 'date_uuid'
+                date_events_df = date_events_df.dropna(subset=['date_uuid'])
 
                 # Additional cleaning logic if needed
 
@@ -145,6 +149,16 @@ class DataCleaning:
 
         except Exception as e:
             print(f"Error cleaning date events data: {e}")
+            return None
+
+    def convert_to_uuid(self, value):
+        try:
+            if pd.isna(value) or value.lower() == 'null':
+                return None
+            uuid_value = uuid.UUID(str(value))
+            return uuid_value
+        except ValueError:
+            print(f"Error converting '{value}' to UUID format.")
             return None
 
 if __name__ == "__main__":
