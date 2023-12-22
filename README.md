@@ -26,3 +26,28 @@ To run this project, follow these steps:
    ```bash
    git clone https://github.com/emma-luk/multinational-retail-data-centralisation946.git
    cd Python
+
+2. Install the required dependencies:
+   pip install -r requirements.txt
+
+3. Set up the necessary database credentials. Refer to db_creds.yaml and local_credentials.yaml for examples.
+
+## Usage
+Execute the main script main.py to perform the data extraction, transformation, and loading (ETL) tasks. Ensure that the required API key and URLs are configured in the script.
+
+python main.py
+
+multinational-retail-data-centralisation/
+|-- Python/
+|   |-- main.py
+|   |-- data_extraction.py
+|   |-- data_cleaning.py
+|   |-- database_utils.py
+|   |-- db_creds.yaml
+|   |-- local_credentials.yaml
+|-- README.md
+|-- requirements.txt
+
+### License
+
+Feel free to customise the content as needed. Add more details or sections based on your project's specific requirements. Make sure to update the information in square brackets (e.g., `[your-username]`, `[your-project-name]`, etc.) with your actual details.
