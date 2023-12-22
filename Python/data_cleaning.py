@@ -83,6 +83,13 @@ class DataCleaning:
 
     def clean_user_data(self, data):
         # Method to clean user data
+        # cover ERROR:  invalid input syntax for type uuid: "W43MSCMQ88" SQL state: 22P02
+        # Convert 'user_uuid' column to UUID
+        data['user_uuid'] = data['user_uuid'].apply(lambda x: self.convert_to_uuid(x))
+
+        # Drop rows with invalid UUIDs
+        data = data.dropna(subset=['user_uuid'])
+
         # Check for NULL values
         data = data.dropna()
 
