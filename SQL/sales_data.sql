@@ -97,14 +97,13 @@ ALTER COLUMN join_date TYPE DATE USING join_date::DATE;
 
 
 -- Assuming the table is named dim_store_details
-ALTER TABLE dim_store_details
-ALTER COLUMN longitude TYPE DOUBLE PRECISION USING longitude::DOUBLE PRECISION;
-
+--ALTER TABLE dim_store_details
+--ALTER COLUMN longitude TYPE DOUBLE PRECISION USING longitude::DOUBLE PRECISION;
 
 UPDATE public.dim_store_details
 SET longitude = NULL
 WHERE longitude = 'N/A';
---or 
+ 
 ALTER TABLE dim_store_details
 ALTER COLUMN longitude TYPE FLOAT USING NULLIF(NULLIF(longitude, ' '), 'NULL')::FLOAT;
 
@@ -155,8 +154,12 @@ WHERE store_type LIKE 'WEB%' OR store_code LIKE 'WEB%';
 
 -- Task 4: Make changes to the dim_products  table for the delivery team in pgAdmin SQL 
 -- Remove £ character from product_price in PostgreSQL (pgAdmin4):
-UPDATE dim_products
-SET product_price = REPLACE(product_price, '£', '');
+-- Emma has removed the £ character in Python codes
+--UPDATE dim_products
+--SET product_price_pound = REPLACE(product_price, '£', '');
+
+SELECT *
+FROM dim_products
 
 -- Add a new column weight_class:
 -- To be on the safe side and accommodate potential future changes, 
@@ -207,18 +210,7 @@ FROM dim_products;
 
 -- 14
 SELECT MAX(LENGTH(weight_class)) AS max_length
-FROM dim_products;
-
--- Change data types of the columns
-ALTER TABLE dim_products
-  ALTER COLUMN product_price TYPE FLOAT USING NULLIF(product_price, '')::FLOAT,
-  ALTER COLUMN weight TYPE FLOAT USING NULLIF(weight, '')::FLOAT,
-  ALTER COLUMN EAN TYPE VARCHAR(30),
-  ALTER COLUMN product_code TYPE VARCHAR(30),
-  ALTER COLUMN date_added TYPE DATE,
-  ALTER COLUMN uuid TYPE UUID USING NULLIF(uuid, '')::UUID,
-  ALTER COLUMN still_available TYPE BOOL,
-  ALTER COLUMN weight_class TYPE VARCHAR(30); 
+FROM dim_products; 
 
 SELECT COUNT(*)
 FROM dim_products
@@ -540,6 +532,9 @@ WHERE card_number LIKE '?%'
 UPDATE public.dim_card_details
 SET card_number = REPLACE(card_number, '?', '')
 WHERE card_number LIKE '%?%';
+
+SELECT *
+FROM public.dim_card_details
 
 -- Add foreign key to dim_date_times
 ALTER TABLE public.orders_table
