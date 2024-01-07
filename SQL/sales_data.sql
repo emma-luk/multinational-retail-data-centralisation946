@@ -503,6 +503,7 @@ FROM public.dim_card_details
 WHERE card_number LIKE '?%'
 --LIMIT 30;  -- Adjust the limit as needed to inspect a manageable number of rows
 
+-- invalid data
 "?4971858637664481"
 "???3554954842403828"
 "??4654492346226715"
@@ -565,3 +566,11 @@ ALTER TABLE public.orders_table
 ADD CONSTRAINT fk_orders_product_code
 FOREIGN KEY (product_code)
 REFERENCES public.dim_products(product_code);
+
+-- when using CASCADE as it will remove all dependent objects along with the table.
+--DROP TABLE dim_products CASCADE;
+--DROP TABLE orders_table CASCADE;
+--DROP TABLE dim_date_times CASCADE;
+--DROP TABLE clean_orders_table CASCADE;
+--DROP TABLE dim_card_details CASCADE;
+--DROP TABLE dim_store_details CASCADE;
