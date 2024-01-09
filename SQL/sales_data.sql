@@ -40,36 +40,76 @@ IS_TEMPLATE = False;
 -- it need to execute ALTER TABLE statements. However, determining the maximum length for VARCHAR columns 
 -- requires knowledge of the actual data. Let's assume it want to set a reasonable maximum length, 
 --such as 255 characters, for VARCHAR columns.
+--check data
+SELECT *
+FROM public.orders_table;
+
+--To check the length of the values
+SELECT MAX((card_number)) AS max_length 
+FROM public.orders_table;
+-- 4999876853991480000
+
+--To check the length of the values
+SELECT MAX(CHAR_LENGTH(CAST(card_number AS TEXT))) AS max_length 
+FROM public.orders_table;
+-- 19
+
+--To check the length of the values
+SELECT MAX(LENGTH(store_code)) AS max_length 
+FROM public.orders_table;
+--12
+
+--To check the length of the values
+SELECT MAX(LENGTH(product_code)) AS max_length 
+FROM public.orders_table;
+--11
 
 -- Here's an example SQL script that it can use to change the data types:
 
 -- Alter date_uuid column
-ALTER TABLE orders_table
+ALTER TABLE public.orders_table
 ALTER COLUMN date_uuid TYPE UUID USING date_uuid::UUID;
 
 -- Alter user_uuid column
-ALTER TABLE orders_table
+ALTER TABLE public.orders_table
 ALTER COLUMN user_uuid TYPE UUID USING user_uuid::UUID;
 
 -- Alter card_number column (Assuming a max length of 255 for card_number)
-ALTER TABLE orders_table
-ALTER COLUMN card_number TYPE VARCHAR(255);
+ALTER TABLE public.orders_table
+ALTER COLUMN card_number TYPE VARCHAR(50);
 
 -- Alter store_code column (Assuming a max length of 255 for store_code)
-ALTER TABLE orders_table
-ALTER COLUMN store_code TYPE VARCHAR(255);
+ALTER TABLE public.orders_table
+ALTER COLUMN store_code TYPE VARCHAR(30);
 
 -- Alter product_code column (Assuming a max length of 255 for product_code)
-ALTER TABLE orders_table
-ALTER COLUMN product_code TYPE VARCHAR(255);
+ALTER TABLE public.orders_table
+ALTER COLUMN product_code TYPE VARCHAR(30);
 
 -- Alter product_quantity column
-ALTER TABLE orders_table
+ALTER TABLE public.orders_table
 ALTER COLUMN product_quantity TYPE SMALLINT;
 
 -- Task 2: Cast the columns of the dim_users_table to the correct data types.
 -- To cast the columns in PostgreSQL (pgAdmin4) for the specified columns in the local_dim_users, 
 --it can use the ALTER TABLE statement. Here's an example SQL script:
+--check data
+SELECT *
+FROM public.local_dim_users;
+
+SELECT MAX(LENGTH(country_code)) AS max_length 
+FROM public.local_dim_users
+WHERE country_code = '3';
+null
+
+--To check the length of the values
+SELECT MAX(LENGTH(first_name)) AS max_length 
+FROM public.local_dim_users;
+-- 14
+
+SELECT MAX(LENGTH(last_name)) AS max_length 
+FROM public.local_dim_users;
+-- 15
 
 -- Alter first_name column (Assuming a max length of 255 for first_name)
 ALTER TABLE public.local_dim_users
@@ -85,7 +125,7 @@ ALTER COLUMN date_of_birth TYPE DATE USING date_of_birth::DATE;
 
 -- Alter country_code column (Assuming a max length of 255 for country_code)
 ALTER TABLE public.local_dim_users
-ALTER COLUMN country_code TYPE VARCHAR(255);
+ALTER COLUMN country_code TYPE VARCHAR(5);
 
 -- Alter user_uuid column
 ALTER TABLE public.local_dim_users
@@ -100,35 +140,55 @@ ALTER COLUMN join_date TYPE DATE USING join_date::DATE;
 --ALTER TABLE dim_store_details
 --ALTER COLUMN longitude TYPE DOUBLE PRECISION USING longitude::DOUBLE PRECISION;
 
+--check data
+SELECT *
+FROM public.dim_store_details;
+
 UPDATE public.dim_store_details
 SET longitude = NULL
 WHERE longitude = 'N/A';
  
-ALTER TABLE dim_store_details
+ALTER TABLE public.dim_store_details
 ALTER COLUMN longitude TYPE FLOAT USING NULLIF(NULLIF(longitude, ' '), 'NULL')::FLOAT;
 
 -- This query uses a regular expression (^\d+$) to identify rows 
 -- where staff_numbers does not consist entirely of digits. 
-UPDATE dim_store_details
+UPDATE public.dim_store_details
 SET staff_numbers = NULL
 WHERE NOT staff_numbers ~ '^\d+$';
 
 -- This query updates all rows where the latitude column has the value "NULL" 
 -- and sets it to a proper NULL value.
-UPDATE dim_store_details
+UPDATE public.dim_store_details
 SET latitude = NULL
 WHERE latitude = 'NULL';
 
 --  the ALTER TABLE statement to change the data type:
-ALTER TABLE dim_store_details
-  ALTER COLUMN longitude TYPE FLOAT,
-  ALTER COLUMN locality TYPE VARCHAR(255),
-  ALTER COLUMN store_code TYPE VARCHAR(255),
-  ALTER COLUMN staff_numbers TYPE SMALLINT USING staff_numbers::SMALLINT,
-  ALTER COLUMN opening_date TYPE DATE,
-  ALTER COLUMN store_type TYPE VARCHAR(255),
-  ALTER COLUMN latitude TYPE DOUBLE PRECISION USING latitude::DOUBLE PRECISION,
-  ALTER COLUMN country_code TYPE VARCHAR(255), 
+ALTER TABLE public.dim_store_details
+  ALTER COLUMN longitude TYPE FLOAT;
+  
+ALTER TABLE public.dim_store_details
+  ALTER COLUMN locality TYPE VARCHAR(255);
+  
+ALTER TABLE public.dim_store_details
+  ALTER COLUMN store_code TYPE VARCHAR(255);
+
+ALTER TABLE public.dim_store_details
+  ALTER COLUMN staff_numbers TYPE SMALLINT USING staff_numbers::SMALLINT;
+  
+ALTER TABLE public.dim_store_details
+  ALTER COLUMN opening_date TYPE DATE;
+  
+ALTER TABLE public.dim_store_details
+  ALTER COLUMN store_type TYPE VARCHAR(255);
+  
+ALTER TABLE public.dim_store_details
+  ALTER COLUMN latitude TYPE DOUBLE PRECISION USING latitude::DOUBLE PRECISION;
+  
+ALTER TABLE public.dim_store_details
+  ALTER COLUMN country_code TYPE VARCHAR(255); 
+  
+ALTER TABLE public.dim_store_details
   ALTER COLUMN continent TYPE VARCHAR(255);
 
 -- check the data type
@@ -143,12 +203,12 @@ SELECT index, address, longitude, locality, store_code, staff_numbers, opening_d
 -- For e.g the address column can be N/A since the store is on the web and there is no physical address for us to go to
 
 SELECT *
-FROM dim_store_details
+FROM public.dim_store_details
 WHERE store_type LIKE 'WEB%' OR store_code LIKE 'WEB%';
 
 -- This query updates the address column to 'N/A' for the rows where either the store_type starts with 'WEB' 
 -- or the store_code starts with 'WEB'.
-UPDATE dim_store_details
+UPDATE public.dim_store_details
 SET address = 'N/A'
 WHERE store_type LIKE 'WEB%' OR store_code LIKE 'WEB%';
 
@@ -159,19 +219,19 @@ WHERE store_type LIKE 'WEB%' OR store_code LIKE 'WEB%';
 --SET product_price_pound = REPLACE(product_price, '£', '');
 
 SELECT *
-FROM dim_products
+FROM public.dim_products
 
 -- Add a new column weight_class:
 -- To be on the safe side and accommodate potential future changes, 
 -- it might choose a length slightly larger than the longest value.
 -- Let's say 30 characters:
-ALTER TABLE dim_products
+ALTER TABLE public.dim_products
 ADD COLUMN weight_class VARCHAR(30);
 
 -- This statement uses the CASE statement to categorise the weight_kg values into different classes and 
 -- updates the weight_class column accordingly.
 -- Update weight_class based on weight range:
-UPDATE dim_products
+UPDATE public.dim_products
 SET weight_class = 
     CASE 
         WHEN weight_kg < 2 THEN 'Light'
@@ -195,25 +255,25 @@ ORDER BY "Unnamed: 0";
 -- It will want to rename the removed column to still_available before changing its data type.
 
 -- Rename the 'removed' column to 'still_available'
-ALTER TABLE dim_products RENAME COLUMN removed TO still_available;
+ALTER TABLE public.dim_products RENAME COLUMN removed TO still_available;
 
 -- To find the maximum length of the EAN column in the dim_products table in pgAdmin SQL, 
 -- it can use the following query:
 -- It can then use this result to set the appropriate length in the VARCHAR(?) declaration
 -- when altering the column data type. -17
 SELECT MAX(LENGTH("EAN")) AS max_length
-FROM dim_products;
+FROM public.dim_products;
 
 -- 11
 SELECT MAX(LENGTH(product_code)) AS max_length
-FROM dim_products;
+FROM public.dim_products;
 
 -- 14
 SELECT MAX(LENGTH(weight_class)) AS max_length
-FROM dim_products; 
+FROM public.dim_products; 
 
 SELECT COUNT(*)
-FROM dim_products
+FROM public.dim_products
 WHERE weight_kg IS NULL;
 -----------
 -- Task 5: Update the dim_products table with the required data types.
@@ -224,7 +284,7 @@ WHERE weight_kg IS NULL;
 -- Make the changes to the columns to cast them to the following data types:
 
 -- Clean data
-UPDATE dim_products
+UPDATE public.dim_products
 SET 
   product_price_pound = CASE 
                           WHEN product_price_pound IS NULL OR trim(product_price_pound::text) ~ '^\s*$|^NA$' THEN NULL
@@ -237,7 +297,7 @@ SET
 
 -- Identify and handle invalid date values
 -- some values like "CCAVRB79VV" etc cannot be cast automatically to a date. 
-UPDATE dim_products
+UPDATE public.dim_products
 SET
   date_added = CASE 
                  WHEN date_added ~ '^\D*$' OR 
@@ -249,7 +309,7 @@ SET
                END;
 -- check invalid date values
 SELECT uuid
-FROM dim_products
+FROM public.dim_products
 WHERE uuid !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$';
 
 "7QB0Z9EW1G"
@@ -261,24 +321,41 @@ WHERE uuid !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a
 --After running this query, you can check the rows again to verify that the specified UUIDs are set to NULL.
 -- Here's an update the invalid UUID values to NULL:
 
-UPDATE dim_products
+UPDATE public.dim_products
 SET uuid = NULL
 WHERE uuid IN ('7QB0Z9EW1G', 'VIBLHHVPMN', 'CP8XYQVGGU');
 
+-- check data again
+SELECT * 
+FROM public.dim_products
+ORDER BY "Unnamed: 0";
+
+
 -- Change data types
-ALTER TABLE dim_products
-  ALTER COLUMN product_price_pound TYPE FLOAT USING NULLIF(NULLIF(trim(product_price_pound::text), ''), 'NA')::FLOAT,
-  ALTER COLUMN weight_kg TYPE FLOAT USING NULLIF(NULLIF(trim(weight_kg::text), ''), 'NA')::FLOAT,
-  ALTER COLUMN "EAN" TYPE VARCHAR(30),
-  ALTER COLUMN product_code TYPE VARCHAR(30),
-  ALTER COLUMN date_added TYPE DATE USING NULLIF(NULLIF(trim(date_added::text), ''), '')::DATE,
-  ALTER COLUMN uuid TYPE UUID USING NULLIF(uuid, 'NA')::UUID,
-  ALTER COLUMN still_available TYPE BOOLEAN USING (trim(still_available::text) = 'true'),
-  --ALTER COLUMN still_available TYPE BOOLEAN USING CASE 
-                                                    --WHEN trim(still_available::text) ~* 'true' THEN true
-                                                    --WHEN trim(still_available::text) ~* 'false' THEN false
-                                                    --ELSE NULL
-                                                  --END,
+ALTER TABLE public.dim_products
+  ALTER COLUMN product_price_pound TYPE FLOAT USING NULLIF(NULLIF(trim(product_price_pound::text), ''), 'NA')::FLOAT;
+  
+ALTER TABLE public.dim_products
+  ALTER COLUMN weight_kg TYPE FLOAT USING NULLIF(NULLIF(trim(weight_kg::text), ''), 'NA')::FLOAT;
+  
+ALTER TABLE public.dim_products
+  ALTER COLUMN "EAN" TYPE VARCHAR(30);
+  
+ALTER TABLE public.dim_products
+  ALTER COLUMN product_code TYPE VARCHAR(30);
+  
+ALTER TABLE public.dim_products
+  ALTER COLUMN date_added TYPE DATE USING NULLIF(NULLIF(trim(date_added::text), ''), '')::DATE;
+  
+ALTER TABLE public.dim_products
+  ALTER COLUMN uuid TYPE UUID USING NULLIF(uuid, 'NA')::UUID;
+	
+ALTER TABLE public.dim_products
+ALTER COLUMN still_available TYPE BOOL
+USING CASE WHEN still_available = 'Still_avaliable' THEN true ELSE false END;
+
+												  
+ALTER TABLE public.dim_products
   ALTER COLUMN weight_class TYPE VARCHAR(30);
 
 ---
@@ -290,23 +367,23 @@ SELECT "timestamp", month, year, day, time_period, date_uuid
 	FROM public.dim_date_times;
 	
 -- Update month column
-ALTER TABLE dim_date_times
+ALTER TABLE public.dim_date_times
 ALTER COLUMN month TYPE VARCHAR(50);
 
 -- Update year column
-ALTER TABLE dim_date_times
+ALTER TABLE public.dim_date_times
 ALTER COLUMN year TYPE VARCHAR(50);
 
 -- Update day column
-ALTER TABLE dim_date_times
+ALTER TABLE public.dim_date_times
 ALTER COLUMN day TYPE VARCHAR(50);
 
 -- Update time_period column
-ALTER TABLE dim_date_times
+ALTER TABLE public.dim_date_times
 ALTER COLUMN time_period TYPE VARCHAR(50);
 
 -- Update date_uuid column to UUID type
-ALTER TABLE dim_date_times
+ALTER TABLE public.dim_date_times
 ALTER COLUMN date_uuid TYPE UUID USING (date_uuid::UUID);
 
 -- Task 7: Updating the dim_card_details table.
@@ -330,23 +407,25 @@ FROM public.dim_card_details;
 -10
 
 -- Update data type for card_number to VARCHAR(30)
-ALTER TABLE dim_card_details
+ALTER TABLE public.dim_card_details
 ALTER COLUMN card_number TYPE VARCHAR(30);
 
 -- Update data type for expiry_date to VARCHAR(16)
-ALTER TABLE dim_card_details
+ALTER TABLE public.dim_card_details
 ALTER COLUMN expiry_date TYPE VARCHAR(16);
 
 -- Update data type for date_payment_confirmed to DATE
 -- Convert the existing data to DATE using the specified format
-ALTER TABLE dim_card_details
+
+-- Update date_payment_confirmed to DATE
+ALTER TABLE public.dim_card_details
 ALTER COLUMN date_payment_confirmed TYPE DATE
 USING (
   CASE 
     WHEN date_payment_confirmed IS NOT NULL 
          AND date_payment_confirmed ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' -- Check for valid date format
     THEN to_date(date_payment_confirmed, 'YYYY-MM-DD')
-    ELSE '1900-01-01'::DATE  -- Replace with a default date or another appropriate representation
+    ELSE '0001-01-01'::DATE  -- -- Replace with a default date or another appropriate representation
   END
 );
 
@@ -484,7 +563,7 @@ WHERE
 --Use SQL to create those foreign key constraints that reference the primary keys of the other table.
 --This makes the star-based database schema complete.
 
-UPDATE dim_card_details
+UPDATE public.dim_card_details
 SET card_number = REPLACE(card_number, '?', '')
 WHERE card_number LIKE '%69242%';
 
