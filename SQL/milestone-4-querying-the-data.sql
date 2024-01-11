@@ -165,6 +165,731 @@ ORDER BY
 "Mall Kiosk"	"DE"	247634.20000000042
 "Outlet"	"DE"	198373.5700000005
 
+-- Alter the data type of the timestamp column to timestamp
+ALTER TABLE public.dim_date_times
+ALTER COLUMN timestamp TYPE TIMESTAMP USING to_timestamp(timestamp, 'HH24:MI:SS');
+
+
+-- Assuming your table is named 'your_table_name'
+ALTER TABLE public.dim_date_times
+ALTER COLUMN timestamp TYPE TIME USING timestamp::TIME;
+
+-- Update the new column with the combined values
+UPDATE public.dim_date_times
+SET new_timestamp = TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS');
+
+SELECT *
+FROM 
+
+
+WITH cte AS (
+  SELECT
+    year,
+	month,
+	day,
+	timestamp,
+    TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS') AS datetime
+  FROM
+    public.dim_date_times
+  ORDER BY
+    year, month, day, timestamp
+)
+
+SELECT
+  year,
+  AVG(time_difference) AS avg_time,
+  AVG(EXTRACT(HOUR FROM time_difference)::numeric) AS avg_hours,
+  AVG(EXTRACT(MINUTE FROM time_difference)::numeric) AS avg_minutes,
+  AVG(EXTRACT(SECOND FROM time_difference)::numeric) AS avg_seconds,
+  AVG(EXTRACT(MILLISECONDS FROM time_difference)::numeric) AS avg_milliseconds
+FROM (
+  SELECT
+    year,
+    datetime,
+    datetime - LAG(datetime) OVER (ORDER BY datetime) AS time_difference
+  FROM
+    cte
+) AS subquery
+
+GROUP BY
+  year
+ORDER BY
+  avg_time DESC;
+
+
+WITH cte AS (
+  SELECT
+    year,
+    month,
+    day,
+    timestamp,
+    TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS') AS datetime
+  FROM
+    public.dim_date_times
+  ORDER BY
+    year, month, day, timestamp
+)
+
+SELECT
+  year,
+  month,
+  day,
+  timestamp,
+  TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS') AS datetime,
+  TO_CHAR(TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS'), 'HH24:MI:SS') AS time_only
+FROM
+  cte
+ORDER BY
+  year, month, day, timestamp;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+WITH cte AS (
+  SELECT
+    year,
+    TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS') AS datetime
+  FROM
+    public.dim_date_times
+  ORDER BY
+    year, month, day, timestamp
+)
+
+SELECT
+  year,
+  AVG(EXTRACT(HOUR FROM time_diff)::numeric) AS avg_hours,
+  AVG(EXTRACT(MINUTE FROM time_diff)::numeric) AS avg_minutes,
+  AVG(EXTRACT(SECOND FROM time_diff)::numeric) AS avg_seconds,
+  AVG(EXTRACT(MILLISECONDS FROM time_diff)::numeric) AS avg_milliseconds
+FROM (
+  SELECT
+    year,
+    datetime,
+    LEAD(datetime) OVER (ORDER BY year, datetime) AS next_datetime,
+    (LEAD(datetime) OVER (ORDER BY year, datetime) - datetime) AS time_diff
+  FROM
+    cte
+) AS subquery
+WHERE
+  next_datetime IS NOT NULL
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+WITH cte AS (
+  SELECT
+    year,
+    TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS') AS datetime
+  FROM
+    public.dim_date_times
+  ORDER BY
+    year, month, day, timestamp
+)
+
+SELECT
+  year,
+  AVG(EXTRACT(HOUR FROM time_diff)::numeric) AS avg_hours,
+  AVG(EXTRACT(MINUTE FROM time_diff)::numeric) AS avg_minutes,
+  AVG(EXTRACT(SECOND FROM time_diff)::numeric) AS avg_seconds,
+  AVG(EXTRACT(MILLISECONDS FROM time_diff)::numeric) AS avg_milliseconds
+FROM (
+  SELECT
+    year,
+    datetime,
+    LEAD(datetime) OVER (ORDER BY year, datetime) AS next_datetime,
+    (LEAD(datetime) OVER (ORDER BY year, datetime) - datetime) AS time_diff
+  FROM
+    cte
+) AS subquery
+WHERE
+  next_datetime IS NOT NULL AND next_datetime > datetime
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+
+WITH cte AS (
+  SELECT
+    year,
+    TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS') AS datetime
+  FROM
+    public.dim_date_times
+  ORDER BY
+    year, month, day, timestamp
+)
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)::numeric),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)::numeric),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)::numeric),
+    'milliseconds', AVG(EXTRACT(MILLISECONDS FROM time_diff)::numeric)
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    datetime,
+    LEAD(datetime) OVER (ORDER BY year, datetime) AS next_datetime,
+    (LEAD(datetime) OVER (ORDER BY year, datetime) - datetime) AS time_diff
+  FROM
+    cte
+) AS subquery
+WHERE
+  next_datetime IS NOT NULL AND next_datetime > datetime
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+
+WITH cte AS (
+  SELECT
+    TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS') AS datetimes,
+    year
+  FROM
+    dim_date_times
+  ORDER BY
+    datetimes DESC
+)
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)::numeric),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)::numeric),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)::numeric),
+    'milliseconds', AVG(EXTRACT(MILLISECONDS FROM time_diff)::numeric)
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    datetimes,
+    LEAD(datetimes) OVER (ORDER BY datetimes) AS next_datetimes,
+    (LEAD(datetimes) OVER (ORDER BY datetimes) - datetimes) AS time_diff
+  FROM
+    cte
+) AS subquery
+WHERE
+  next_datetimes IS NOT NULL AND next_datetimes > datetimes
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECONDS FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL AND next_timestamp > timestamp
+GROUP BY
+  year
+ORDER BY
+  year;
+
+---
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)::numeric),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)::numeric),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)::numeric),
+    'milliseconds', AVG(EXTRACT(MILLISECONDS FROM time_diff)::numeric)
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL AND next_timestamp > timestamp
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+SELECT
+year,
+TO_JSONB(json_build_object(
+'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+)) AS actual_time_taken
+FROM (
+SELECT
+year,
+timestamp,
+LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+(LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp) AS time_diff
+FROM
+public.dim_date_times
+) AS subquery
+WHERE
+next_timestamp IS NOT NULL
+GROUP BY
+year
+ORDER BY
+year;
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)::numeric),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)::numeric),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)::numeric),
+    'milliseconds', AVG(EXTRACT(MILLISECONDS FROM time_diff)::numeric)
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (EXTRACT(EPOCH FROM LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp) * 1000)::numeric AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)::numeric),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)::numeric),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)::numeric),
+    'milliseconds', AVG(EXTRACT(MILLISECONDS FROM time_diff)::numeric)
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    EXTRACT(EPOCH FROM (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp)) * 1000 AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    EXTRACT(EPOCH FROM (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp))::numeric * 1000 AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    EXTRACT(EPOCH FROM (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp)) * 1000 AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+SELECT
+  year,
+  CONCAT(
+    '"hours": ', EXTRACT(HOUR FROM avg_time_diff)::TEXT, ', ',
+    '"minutes": ', EXTRACT(MINUTE FROM avg_time_diff)::TEXT, ', ',
+    '"seconds": ', EXTRACT(SECOND FROM avg_time_diff)::TEXT, ', ',
+    '"milliseconds": ', EXTRACT(MILLISECOND FROM avg_time_diff)::TEXT
+  ) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    AVG(next_timestamp - timestamp) AS avg_time_diff
+  FROM (
+    SELECT
+      year,
+      timestamp,
+      LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp
+    FROM
+      public.dim_date_times
+  ) AS subquery
+  WHERE
+    next_timestamp IS NOT NULL
+  GROUP BY
+    year
+) AS final_query
+ORDER BY
+  year;
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp)::time - timestamp::time) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp > timestamp
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp)::time - timestamp::time) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp)::time - timestamp::time) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp IS NOT NULL -- Ensures there is a next timestamp
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp)::time - timestamp::time) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+WHERE
+  next_timestamp > timestamp
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp)::time - timestamp::time) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    TO_TIMESTAMP(LEAD(timestamp) OVER (ORDER BY year, month, day, timestamp), 'HH24:MI:SS') - TO_TIMESTAMP(timestamp, 'HH24:MI:SS') AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+
+SELECT
+  year,
+  TO_JSONB(json_build_object(
+    'hours', AVG(EXTRACT(HOUR FROM time_diff)),
+    'minutes', AVG(EXTRACT(MINUTE FROM time_diff)),
+    'seconds', AVG(EXTRACT(SECOND FROM time_diff)),
+    'milliseconds', AVG(EXTRACT(MILLISECOND FROM time_diff))
+  )) AS actual_time_taken
+FROM (
+  SELECT
+    year,
+    timestamp,
+    LEAD(timestamp::timestamp) OVER (ORDER BY year, month, day, timestamp) AS next_timestamp,
+    (LEAD(timestamp::timestamp) OVER (ORDER BY year, month, day, timestamp) - timestamp::timestamp) AS time_diff
+  FROM
+    public.dim_date_times
+) AS subquery
+GROUP BY
+  year
+ORDER BY
+  year;
+
+
+
+
+
+
+
 SELECT
   year,
   TO_JSONB(json_build_object(
